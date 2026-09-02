@@ -1,0 +1,20 @@
+name: Проверка домашнего задания
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # JDK на ubuntu-latest уже предустановлен, ставить ничего не нужно.
+      # Чекер сам подставит эталонные тесты, запустит ./gradlew test
+      # и отправит результат в LMS.
+      - name: Проверка решения
+        run: |
+          chmod +x .github/checker
+          .github/checker
