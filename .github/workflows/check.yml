@@ -14,7 +14,10 @@ jobs:
       # JDK на ubuntu-latest уже предустановлен, ставить ничего не нужно.
       # Чекер сам подставит эталонные тесты, запустит ./gradlew test
       # и отправит результат в LMS.
+      #
+      # ВРЕМЕННО: --dry-run прогоняет тесты без обращения к LMS.
+      # Убрать вместе с пересборкой чекера на боевом LMS_COMPANY_TOKEN.
       - name: Проверка решения
         run: |
           chmod +x .github/checker
-          .github/checker
+          .github/checker --dry-run

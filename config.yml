@@ -1,2 +1,3 @@
 # Вставьте сюда свой токен из личного кабинета LMS.
-user_token: PASTE_YOUR_TOKEN_HERE
+# ВРЕМЕННО: тестовое значение для обкатки CI, вернуть PASTE_YOUR_TOKEN_HERE перед выдачей студентам.
+user_token: test-student-token

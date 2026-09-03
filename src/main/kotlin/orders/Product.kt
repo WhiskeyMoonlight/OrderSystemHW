@@ -15,6 +15,8 @@ data class Product(
     val category: ProductCategory
 ) {
     init {
-        TODO()
+        require(id > 0) { "id товара должен быть положительным, получено $id" }
+        require(name.isNotBlank()) { "название товара не может быть пустым" }
+        require(priceInKopecks > 0) { "цена должна быть положительной, получено $priceInKopecks" }
     }
 }
