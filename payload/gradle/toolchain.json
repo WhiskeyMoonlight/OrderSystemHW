@@ -1,0 +1,12 @@
+{
+  "id": "gradle",
+  "displayName": "Kotlin / Gradle (JUnit Platform)",
+  "wipeDir": "src/test",
+  "testsTargetDir": "src/test/kotlin",
+  "chmod": ["gradlew"],
+  "reportCleanDir": "build/test-results/test",
+  "command": ["./gradlew", "--no-daemon", "--console=plain", "test"],
+  "reportGlob": "build/test-results/test/*.xml",
+  "timeoutMinutes": 15,
+  "minTests": 211
+}

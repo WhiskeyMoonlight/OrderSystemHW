@@ -5,146 +5,107 @@ import (
 	"bytes"
 	"compress/gzip"
 	_ "embed"
-	"encoding/xml"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
 // Эталонные тесты вшиваются в бинарь на этапе go build одним сжатым архивом:
 // в несжатом виде их находил бы обычный grep по бинарю.
-// Архив собирает build.sh из каталога payload/.
+// Архив собирает build.sh из каталога payload/<toolchain>/.
 //
 //go:embed payload.tar.gz
 var payloadArchive []byte
 
-// extractTests сносит тесты студента и раскладывает на их место эталонные.
-func extractTests() (int, error) {
-	if err := os.RemoveAll(wipeDir); err != nil {
-		return 0, fmt.Errorf("не удалось очистить %s: %w", wipeDir, err)
-	}
-
+// walkPayload обходит обычные файлы вшитого архива. name — очищенный путь
+// без "./"; записи с выходом за пределы архива пропускаются.
+func walkPayload(visit func(name string, content io.Reader) error) error {
 	unpacked, err := gzip.NewReader(bytes.NewReader(payloadArchive))
 	if err != nil {
-		return 0, fmt.Errorf("повреждён payload: %w", err)
+		return fmt.Errorf("повреждён payload: %w", err)
 	}
 	defer unpacked.Close()
 
-	count := 0
 	archive := tar.NewReader(unpacked)
 	for {
 		header, err := archive.Next()
 		if err == io.EOF {
-			break
+			return nil
 		}
 		if err != nil {
-			return 0, fmt.Errorf("повреждён payload: %w", err)
+			return fmt.Errorf("повреждён payload: %w", err)
 		}
+		// Каталоги, симлинки и служебные PaxHeader-записи macOS-tar не нужны.
 		if header.Typeflag != tar.TypeReg {
 			continue
 		}
-
-		name := strings.TrimPrefix(filepath.Clean(header.Name), "./")
-		if name == "" || strings.HasPrefix(name, "..") || filepath.IsAbs(name) {
+		name, ok := cleanArchivePath(header.Name)
+		if !ok {
 			continue
 		}
-
-		target := filepath.Join(testsTargetDir, name)
-		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
-			return 0, err
+		if err := visit(name, archive); err != nil {
+			return err
 		}
-		file, err := os.Create(target)
-		if err != nil {
-			return 0, err
-		}
-		_, err = io.Copy(file, archive)
-		file.Close()
-		if err != nil {
-			return 0, err
-		}
-		count++
 	}
-
-	if count == 0 {
-		return 0, fmt.Errorf("бинарь собран без эталонных тестов (пустой payload/)")
-	}
-	return count, nil
 }
 
-type report struct {
-	Tests    int
-	Failures int
-	Errors   int
-	Skipped  int
+func cleanArchivePath(raw string) (string, bool) {
+	name := strings.TrimPrefix(filepath.ToSlash(filepath.Clean(raw)), "./")
+	if name == "" || name == "." || name == ".." || strings.HasPrefix(name, "../") || filepath.IsAbs(name) {
+		return "", false
+	}
+	return name, true
 }
 
-func (r report) passed() int { return r.Tests - r.Failures - r.Errors - r.Skipped }
-
-func (r report) green() bool {
-	return r.Tests > 0 && r.Failures == 0 && r.Errors == 0 && r.Skipped == 0
+// underPrefix возвращает путь относительно prefix, если name лежит внутри него.
+func underPrefix(name, prefix string) (string, bool) {
+	rest, ok := strings.CutPrefix(name, prefix+"/")
+	return rest, ok && rest != ""
 }
 
-// parseReports суммирует JUnit XML, которые Gradle кладёт в build/test-results/test.
-func parseReports() (report, error) {
-	files, err := filepath.Glob(reportGlob)
-	if err != nil {
-		return report{}, err
-	}
-	if len(files) == 0 {
-		return report{}, fmt.Errorf("отчётов о тестах нет — скорее всего проект не скомпилировался")
+// extractPayload сносит тесты студента, раскладывает на их место эталонные
+// и перезаписывает закреплённые файлы из pinned/ (например, Package.swift).
+func extractPayload(t toolchain) (tests int, pinned int, err error) {
+	if err := os.RemoveAll(t.WipeDir); err != nil {
+		return 0, 0, fmt.Errorf("не удалось очистить %s: %w", t.WipeDir, err)
 	}
 
-	var total report
-	for _, file := range files {
-		partial, err := parseReport(file)
-		if err != nil {
-			return report{}, err
+	err = walkPayload(func(name string, content io.Reader) error {
+		if rel, ok := underPrefix(name, payloadTestsPrefix); ok {
+			tests++
+			return writeFile(filepath.Join(t.TestsTargetDir, rel), content)
 		}
-		total.Tests += partial.Tests
-		total.Failures += partial.Failures
-		total.Errors += partial.Errors
-		total.Skipped += partial.Skipped
-	}
-	return total, nil
-}
-
-func parseReport(path string) (report, error) {
-	handle, err := os.Open(path)
-	if err != nil {
-		return report{}, fmt.Errorf("не удалось открыть отчёт %s: %w", path, err)
-	}
-	defer handle.Close()
-
-	var result report
-	decoder := xml.NewDecoder(handle)
-	for {
-		token, err := decoder.Token()
-		if err != nil {
-			break
-		}
-		start, ok := token.(xml.StartElement)
-		if !ok || start.Name.Local != "testsuite" {
-			continue
-		}
-		for _, attr := range start.Attr {
-			value, err := strconv.Atoi(attr.Value)
-			if err != nil {
-				continue
+		if rel, ok := underPrefix(name, payloadPinnedPrefix); ok {
+			if err := checkProjectPath(payloadPinnedPrefix, rel); err != nil {
+				return err
 			}
-			switch attr.Name.Local {
-			case "tests":
-				result.Tests += value
-			case "failures":
-				result.Failures += value
-			case "errors":
-				result.Errors += value
-			case "skipped":
-				result.Skipped += value
-			}
+			pinned++
+			return writeFile(rel, content)
 		}
+		return nil
+	})
+	if err != nil {
+		return 0, 0, err
 	}
-	return result, nil
+	if tests == 0 {
+		return 0, 0, fmt.Errorf("бинарь собран без эталонных тестов (пустой payload/%s/%s)", t.ID, payloadTestsPrefix)
+	}
+	return tests, pinned, nil
+}
+
+func writeFile(target string, content io.Reader) error {
+	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+		return err
+	}
+	file, err := os.Create(target)
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(file, content)
+	if closeErr := file.Close(); err == nil {
+		err = closeErr
+	}
+	return err
 }

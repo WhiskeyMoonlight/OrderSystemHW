@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="orders.ProductTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-09-03T16:05:15.218Z" hostname="localhost" time="0.002">
+  <properties/>
+  <testcase name="rejects blank name()" classname="orders.ProductTest" time="0.0"/>
+  <testcase name="rejects zero id()" classname="orders.ProductTest" time="0.0"/>
+  <testcase name="products with different fields are not equal()" classname="orders.ProductTest" time="0.001"/>
+  <testcase name="creates product with valid arguments()" classname="orders.ProductTest" time="0.0"/>
+  <testcase name="rejects negative id()" classname="orders.ProductTest" time="0.0"/>
+  <testcase name="keeps surrounding whitespace in name()" classname="orders.ProductTest" time="0.0"/>
+  <testcase name="equal products have equal hash codes()" classname="orders.ProductTest" time="0.0"/>
+  <testcase name="rejects zero price()" classname="orders.ProductTest" time="0.0"/>
+  <testcase name="rejects negative price()" classname="orders.ProductTest" time="0.0"/>
+  <testcase name="accepts maximum price()" classname="orders.ProductTest" time="0.0"/>
+  <testcase name="rejects empty name()" classname="orders.ProductTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

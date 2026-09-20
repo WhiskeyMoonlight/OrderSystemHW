@@ -1,0 +1,5 @@
+.build/
+.swiftpm/
+.checker-reports/
+.DS_Store
+*.xcodeproj/xcuserdata/
