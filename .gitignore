@@ -1,2 +1,4 @@
 payload.tar.gz
 dist/
+.idea/
+.DS_Store
