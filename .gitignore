@@ -2,5 +2,3 @@ payload.tar.gz
 dist/
 .idea/
 .DS_Store
-# ключи LMS — только локально
-lms.yml

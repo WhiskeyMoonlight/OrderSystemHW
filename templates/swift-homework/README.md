@@ -1,9 +1,3 @@
-> **Это пример задания для чекера**, перенесённый с Kotlin-курса «Mini Order System». В нём лежат заглушки (`Sources/Orders`) и эталонные тесты (`Tests/OrdersTests`). Собрать для него чекер:
-> ```bash
-> ./build.sh --tests examples/swift-orders --task-id <id> --install-to <репозиторий студента>
-> ```
-> Ниже — README, который увидит студент.
-
 # Домашнее задание
 
 Реализуйте функции в `Sources/Orders/`. Везде, где сейчас стоит `fatalError("TODO")`, должен появиться ваш код.

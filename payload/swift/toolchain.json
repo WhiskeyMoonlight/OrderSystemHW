@@ -7,5 +7,5 @@
   "command": ["swift", "test", "--parallel", "--disable-swift-testing", "--xunit-output", ".checker-reports/results.xml"],
   "reportGlob": ".checker-reports/results*.xml",
   "timeoutMinutes": 25,
-  "minTests": 0
+  "minTests": 1
 }

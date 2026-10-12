@@ -8,5 +8,5 @@
   "command": ["./gradlew", "--no-daemon", "--console=plain", "test"],
   "reportGlob": "build/test-results/test/*.xml",
   "timeoutMinutes": 15,
-  "minTests": 0
+  "minTests": 211
 }

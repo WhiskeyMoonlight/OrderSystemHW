@@ -1,40 +1,47 @@
 # course-checker
 
-Чекер домашних заданий. Это один самодостаточный бинарь: он кладётся в репозиторий студента (`.github/checker`) и запускается в GitHub Actions. Чекер подменяет тесты студента эталонными, прогоняет их и, если всё зелёное, отправляет результат в LMS.
+## Быстрый старт: тесты на Swift
 
-Чекер не привязан к конкретному заданию: тесты и ключи передаются при сборке.
-
-## Быстрый старт: Swift
-
-1. Напишите задание как обычный Swift-пакет: `Package.swift`, `Sources/`, `Tests/`.
-2. Один раз сохраните токен компании:
+1. Положите файлы `*.swift` в `payload/swift/tests/OrdersTests/` — это единственная папка, которую нужно трогать.
+2. Соберите бинарь:
    ```bash
-   cp lms.example.yml lms.yml   # и впишите lms_token
+   LMS_COMPANY_TOKEN=<токен> CALLBACK_TASK_ID=<id задания> ./build.sh swift
    ```
-3. Соберите чекер и установите его в репозиторий для студентов:
-   ```bash
-   ./build.sh --tests ~/MyHomework --task-id 123 --install-to ~/MyHomework-student
-   ```
+3. Готовый бинарь для GitHub Actions — `dist/checker-swift-linux-amd64`. Чтобы сразу положить его в репозиторий задания, добавьте `INSTALL_TO=<путь к репозиторию>`.
 
-Полная инструкция, включая правила для тестов, ключи и проверку перед выдачей: [docs/SWIFT.md](docs/SWIFT.md). Все параметры: `./build.sh --help`.
+Подробно, включая правила для тестов и где взять токены: [docs/SWIFT.md](docs/SWIFT.md).
 
-## Устройство
+Чекер домашних заданий: один самодостаточный бинарь, который кладётся в репозиторий студента (`.github/checker`) и запускается в GitHub Actions. Он подменяет тесты студента эталонными, прогоняет их и при зелёном прогоне отправляет результат в LMS.
+
+Написан на Go, чтобы собираться в статический бинарь под Linux и macOS одной командой, без рантайма и зависимостей.
+
+## Тулчейны
+
+Язык задания задаётся каталогом в `payload/`:
 
 ```
-build.sh               сборка: тесты + ключи → dist/checker-<тулчейн>-<os>-<arch>
-lms.example.yml        шаблон файла с ключами (настоящий lms.yml в .gitignore)
-payload/<тулчейн>/     как проверять проект: toolchain.json (команда, папки, отчёт)
-templates/<тулчейн>/   workflow, config.yml и .gitignore для репозитория студента
-examples/swift-orders  пример Swift-задания
-docs/SWIFT.md          инструкция для автора Swift-задания
-*.go                   сам чекер (менять не нужно)
+payload/<id>/
+├── toolchain.json   что и как запускать, куда класть тесты, где искать отчёт
+├── tests/...        эталонные тесты → копируются в testsTargetDir проекта
+└── pinned/...       необязательно: файлы, перезаписываемые в корне проекта
 ```
 
-Чекер написан на Go, потому что так он собирается в статический бинарь под Linux и macOS одной командой, без рантайма и зависимостей.
+Чтобы добавить язык, нужен новый каталог — код на Go менять не нужно.
 
-| Тулчейн | Задание | Сборка |
+| Тулчейн | Задание | Команда сборки |
 |---|---|---|
-| `swift` | Swift + SwiftPM, XCTest | `./build.sh --tests <пакет>` |
-| `gradle` | Kotlin + Gradle, JUnit | `./build.sh --tests <src/test/kotlin>` или `./build.sh gradle` (встроенные тесты курса) |
+| `gradle` | Kotlin + Gradle, JUnit Platform | `./build.sh gradle` |
+| `swift` | Swift + SwiftPM, XCTest | `./build.sh swift` |
 
-Тулчейн определяется автоматически по файлам тестов. Чтобы добавить новый язык, достаточно папки `payload/<id>/` с `toolchain.json`, код на Go менять не нужно.
+## Сборка
+
+```bash
+LMS_COMPANY_TOKEN=<токен> CALLBACK_TASK_ID=<id задания> ./build.sh swift
+```
+
+Бинари появятся в `dist/checker-<тулчейн>-<os>-<arch>`. Для GitHub Actions нужен `linux-amd64`; `INSTALL_TO=<путь к репозиторию задания>` положит его сразу в `.github/checker`.
+
+## Документация
+
+- [docs/SWIFT.md](docs/SWIFT.md) — как написать тесты на Swift и собрать бинарь.
+- [templates/swift-homework/](templates/swift-homework/) — шаблон репозитория задания на Swift.
