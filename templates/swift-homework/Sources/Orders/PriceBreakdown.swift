@@ -1,9 +1,9 @@
-struct PriceBreakdown: Hashable {
-    let subtotal: Int
-    let discount: Int
-    let total: Int
+public struct PriceBreakdown: Hashable {
+    public let subtotal: Int
+    public let discount: Int
+    public let total: Int
 
-    init(subtotal: Int, discount: Int, total: Int) throws {
+    public init(subtotal: Int, discount: Int, total: Int) throws {
         fatalError("TODO")
     }
 }

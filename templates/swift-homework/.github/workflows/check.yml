@@ -3,17 +3,18 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   check:
     runs-on: ubuntu-latest
     # Swift ставится из официального образа. Версию меняйте только вместе с чекером.
-    container: swift:6.1
+    container: swift:6.1.3-noble
     steps:
       - uses: actions/checkout@v4
-      # Внутри контейнера git иначе ругается на владельца каталога.
-      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      # Чекер сам подставит эталонные тесты, запустит swift test
-      # и отправит результат в LMS.
+        with:
+          persist-credentials: false
+      # Чекер компилирует решение и запускает готовый XCTest из бинарника.
       - name: Проверка решения
         run: |
           chmod +x .github/checker

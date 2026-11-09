@@ -1,12 +1,12 @@
-struct OrderItem: Hashable {
-    let product: Product
-    let quantity: Int
+public struct OrderItem: Hashable {
+    public let product: Product
+    public let quantity: Int
 
-    init(product: Product, quantity: Int) throws {
+    public init(product: Product, quantity: Int) throws {
         fatalError("TODO")
     }
 
-    func subtotal() throws -> Int {
+    public func subtotal() throws -> Int {
         fatalError("TODO")
     }
 }

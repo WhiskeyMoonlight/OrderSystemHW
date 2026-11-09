@@ -1,5 +1,5 @@
 import XCTest
-@testable import Orders
+import Orders
 
 func product(
     id: Int = 1,

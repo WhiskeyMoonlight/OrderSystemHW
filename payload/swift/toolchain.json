@@ -1,11 +1,5 @@
 {
   "id": "swift",
-  "displayName": "Swift / SwiftPM (XCTest)",
-  "wipeDir": "Tests",
-  "testsTargetDir": "Tests",
-  "reportCleanDir": ".checker-reports",
-  "command": ["swift", "test", "--parallel", "--disable-swift-testing", "--xunit-output", ".checker-reports/results.xml"],
-  "reportGlob": ".checker-reports/results*.xml",
-  "timeoutMinutes": 25,
-  "minTests": 1
+  "displayName": "Swift (предварительно собранный XCTest)",
+  "timeoutMinutes": 25
 }

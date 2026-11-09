@@ -1,4 +1,4 @@
-extension Order {
+public extension Order {
     func calculatePrice(discount: Discount? = nil, logger: ((String) -> Void)? = nil) throws -> PriceBreakdown {
         fatalError("TODO")
     }

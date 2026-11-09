@@ -1,7 +1,7 @@
-func statusTypeOf(_ status: OrderStatus) -> OrderStatusType {
+public func statusTypeOf(_ status: OrderStatus) -> OrderStatusType {
     fatalError("TODO")
 }
 
-func processOrder(_ order: Order) -> String {
+public func processOrder(_ order: Order) -> String {
     fatalError("TODO")
 }

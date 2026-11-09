@@ -1,4 +1,4 @@
-enum OrderEvent: Equatable {
+public enum OrderEvent: Equatable {
     case productAdded(productId: Int, addedQuantity: Int, resultingQuantity: Int)
     case quantityChanged(productId: Int, oldQuantity: Int, newQuantity: Int)
     case productRemoved(productId: Int, removedQuantity: Int)

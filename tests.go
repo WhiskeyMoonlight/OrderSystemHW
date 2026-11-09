@@ -12,9 +12,7 @@ import (
 	"strings"
 )
 
-// Эталонные тесты вшиваются в бинарь на этапе go build одним сжатым архивом:
-// в несжатом виде их находил бы обычный grep по бинарю.
-// Архив собирает build.sh из каталога payload/<toolchain>/.
+// build.sh готовит сжатый архив: исходники Gradle-тестов или собранный XCTest.
 //
 //go:embed payload.tar.gz
 var payloadArchive []byte

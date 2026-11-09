@@ -1,62 +1,62 @@
-protocol PriceCalculator {
+public protocol PriceCalculator {
     func calculateSubtotal() throws -> Int
 }
 
-final class Order: PriceCalculator {
-    let id: Int
-    private(set) var status: OrderStatus = .created
+public final class Order: PriceCalculator {
+    public let id: Int
+    public private(set) var status: OrderStatus = .created
     private let eventListener: ((OrderEvent) -> Void)?
 
-    init(id: Int, eventListener: ((OrderEvent) -> Void)? = nil) throws {
+    public init(id: Int, eventListener: ((OrderEvent) -> Void)? = nil) throws {
         fatalError("TODO")
     }
 
-    func getItems() -> [OrderItem] {
+    public func getItems() -> [OrderItem] {
         fatalError("TODO")
     }
 
-    func getEvents() -> [OrderEvent] {
+    public func getEvents() -> [OrderEvent] {
         fatalError("TODO")
     }
 
-    func addProduct(_ product: Product, quantity: Int = 1) throws {
+    public func addProduct(_ product: Product, quantity: Int = 1) throws {
         fatalError("TODO")
     }
 
-    func changeQuantity(productId: Int, newQuantity: Int) throws {
+    public func changeQuantity(productId: Int, newQuantity: Int) throws {
         fatalError("TODO")
     }
 
     @discardableResult
-    func removeProduct(productId: Int) throws -> OrderItem {
+    public func removeProduct(productId: Int) throws -> OrderItem {
         fatalError("TODO")
     }
 
-    func clear() throws {
+    public func clear() throws {
         fatalError("TODO")
     }
 
-    func findItem(productId: Int) -> OrderItem? {
+    public func findItem(productId: Int) -> OrderItem? {
         fatalError("TODO")
     }
 
-    func calculateSubtotal() throws -> Int {
+    public func calculateSubtotal() throws -> Int {
         fatalError("TODO")
     }
 
-    func confirm(discount: Discount? = nil, discountLogger: ((String) -> Void)? = nil) throws {
+    public func confirm(discount: Discount? = nil, discountLogger: ((String) -> Void)? = nil) throws {
         fatalError("TODO")
     }
 
-    func reopen() throws {
+    public func reopen() throws {
         fatalError("TODO")
     }
 
-    func pay(transactionId: String) throws {
+    public func pay(transactionId: String) throws {
         fatalError("TODO")
     }
 
-    func cancel(reason: String) throws {
+    public func cancel(reason: String) throws {
         fatalError("TODO")
     }
 }

@@ -1,28 +1,28 @@
-final class ProductCatalog {
-    init() {}
+public final class ProductCatalog {
+    public init() {}
 
-    func add(_ product: Product) throws {
+    public func add(_ product: Product) throws {
         fatalError("TODO")
     }
 
     @discardableResult
-    func remove(productId: Int) throws -> Product {
+    public func remove(productId: Int) throws -> Product {
         fatalError("TODO")
     }
 
-    func get(productId: Int) -> Product? {
+    public func get(productId: Int) -> Product? {
         fatalError("TODO")
     }
 
-    func getAll() -> [Product] {
+    public func getAll() -> [Product] {
         fatalError("TODO")
     }
 
-    func find(_ predicate: (Product) -> Bool) -> [Product] {
+    public func find(_ predicate: (Product) -> Bool) -> [Product] {
         fatalError("TODO")
     }
 
-    func getByCategory(_ category: ProductCategory) -> [Product] {
+    public func getByCategory(_ category: ProductCategory) -> [Product] {
         fatalError("TODO")
     }
 }

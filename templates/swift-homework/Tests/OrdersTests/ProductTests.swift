@@ -1,5 +1,5 @@
 import XCTest
-@testable import Orders
+import Orders
 
 final class ProductTests: XCTestCase {
 

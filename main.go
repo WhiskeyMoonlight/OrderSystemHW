@@ -70,6 +70,26 @@ func run(dryRun bool) error {
 	}
 	logf("токен студента прочитан из %s", studentConfigFile)
 
+	if t.ID == "swift" {
+		err = runSwiftTests(t)
+	} else {
+		err = runProjectTests(t)
+	}
+	if err != nil {
+		return err
+	}
+	if dryRun {
+		logf("режим --dry-run, результат в LMS не отправлен")
+		return nil
+	}
+	if err := submit(token); err != nil {
+		return err
+	}
+	logf("ЗАДАНИЕ ЗАСЧИТАНО")
+	return nil
+}
+
+func runProjectTests(t toolchain) error {
 	tests, pinned, err := extractPayload(t)
 	if err != nil {
 		return err
@@ -98,15 +118,6 @@ func run(dryRun bool) error {
 		return fmt.Errorf("есть упавшие или пропущенные тесты")
 	}
 
-	if dryRun {
-		logf("режим --dry-run, результат в LMS не отправлен")
-		return nil
-	}
-
-	if err := submit(token); err != nil {
-		return err
-	}
-	logf("ЗАДАНИЕ ЗАСЧИТАНО")
 	return nil
 }
 
@@ -122,8 +133,7 @@ func runTests(t toolchain) error {
 	}
 
 	// Старые отчёты сносим: иначе после неудачного запуска прочитается
-	// зелёный отчёт от прошлого раза. Каталог создаём заново — SwiftPM
-	// сам его для --xunit-output не создаёт.
+	// зелёный отчёт от прошлого раза.
 	if t.ReportCleanDir != "" {
 		if err := os.RemoveAll(t.ReportCleanDir); err != nil {
 			return fmt.Errorf("не удалось очистить %s: %w", t.ReportCleanDir, err)

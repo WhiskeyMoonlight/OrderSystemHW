@@ -10,12 +10,13 @@ import (
 	"time"
 )
 
-// Структура payload/<toolchain>/, из которой build.sh собирает архив:
+// Общие имена записей вшитого архива:
 //
 //	toolchain.json  — описание тулчейна (этот файл)
-//	tests/...       — эталонные тесты, раскладываются в testsTargetDir
-//	pinned/...      — необязательно: файлы, которые перезаписываются в корне проекта
-//	                  (так закрепляется, например, Package.swift)
+//	tests/...       — исходники тестов для тулчейнов с подстановкой файлов
+//	pinned/...      — необязательные файлы, заменяемые в корне проекта
+//
+// Имена записей предсобранного набора Swift определены в swift.go.
 const (
 	manifestName        = "toolchain.json"
 	payloadTestsPrefix  = "tests"
@@ -24,8 +25,8 @@ const (
 	maxTimeout          = 60 * time.Minute
 )
 
-// toolchain описывает, как проверять проект конкретного языка/сборщика.
-// Чтобы добавить язык, достаточно нового каталога payload/<id>/ — код менять не нужно.
+// toolchain хранит настройки проверки. Пути подстановки, команда и XML нужны
+// обычному сценарию Gradle; Swift использует свой предсобранный раннер.
 type toolchain struct {
 	ID             string            `json:"id"`
 	DisplayName    string            `json:"displayName"`
@@ -78,14 +79,17 @@ func (t toolchain) validate() error {
 	if !toolchainIDPattern.MatchString(t.ID) {
 		return fmt.Errorf("%s: некорректный id %q", manifestName, t.ID)
 	}
+	if t.TimeoutMinutes < 0 || t.MinTests < 0 {
+		return fmt.Errorf("%s: timeoutMinutes и minTests не могут быть отрицательными", manifestName)
+	}
+	if t.ID == "swift" {
+		return nil
+	}
 	if len(t.Command) == 0 || strings.TrimSpace(t.Command[0]) == "" {
 		return fmt.Errorf("%s: пустой command", manifestName)
 	}
 	if strings.TrimSpace(t.ReportGlob) == "" {
 		return fmt.Errorf("%s: пустой reportGlob", manifestName)
-	}
-	if t.TimeoutMinutes < 0 || t.MinTests < 0 {
-		return fmt.Errorf("%s: timeoutMinutes и minTests не могут быть отрицательными", manifestName)
 	}
 
 	required := map[string]string{"wipeDir": t.WipeDir, "testsTargetDir": t.TestsTargetDir}

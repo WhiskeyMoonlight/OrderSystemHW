@@ -1,4 +1,5 @@
 payload.tar.gz
+/.checker-build.lock/
 dist/
 .idea/
 .DS_Store
